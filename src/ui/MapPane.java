@@ -28,6 +28,7 @@ public class MapPane extends HBox {
     private final Stage stage;
 
     public MapPane(Stage stage) {
+        super(10);
         this.stage = stage;
         makeUI();
     }
@@ -44,6 +45,10 @@ public class MapPane extends HBox {
         return cell_size;
     }
 
+    public ImageGraph getGraph() {
+        return graph;
+    }
+
     private void drawUI() {
 
     }
@@ -56,6 +61,7 @@ public class MapPane extends HBox {
         System.out.printf("Width : %d Height: %d\n", map_width, map_height);
         if (map_height > 400 || map_width > 400) {
             System.err.println("Image is too large");
+            throw new IllegalArgumentException("Image too large, limit is 400x400");
         }
         pixelData = new Color[map_height][map_width];
         graph = new ImageGraph(map_width, map_height);
@@ -96,8 +102,8 @@ public class MapPane extends HBox {
     }
 
     private void makeUI() {
-        VBox imageBox = new VBox();
-        VBox controlBox = new VBox();
+        VBox imageBox = new VBox(10);
+        VBox controlBox = new VBox(10);
         ObservableList<String> options = FXCollections.observableArrayList("Yellow", "Red", "Black");
         ComboBox<String> severityDropdown = new ComboBox<>(options);
 
@@ -105,22 +111,27 @@ public class MapPane extends HBox {
 
         controlBox.getChildren().add(imageBtn);
         imageBtn.setOnMouseClicked(e -> {
-            loadImage(stage);
-            severityDropdown.setValue("Choose Severity");
+            try {
+                loadImage(stage);
+                severityDropdown.setValue("Choose Severity");
 
-            controlBox.getChildren().remove(imageBtn);
-            imageBtn.setText("Load New Image");
-            controlBox.getChildren().addAll(severityDropdown, imageBtn);
+                controlBox.getChildren().remove(imageBtn);
+                imageBtn.setText("Load New Image");
+                controlBox.getChildren().addAll(severityDropdown, imageBtn);
 
-            GridPane grid = displayPixelGrid(stage);
-            imageBox.getChildren().add(grid);
+                GridPane grid = displayPixelGrid(stage);
+                imageBox.getChildren().add(grid);
 
-            stage.sizeToScene();
+                stage.sizeToScene();
+            } catch (Exception ex) {
+                System.err.println(ex.getMessage());
+            }
 
         });
 
         this.getChildren().addAll(imageBox, controlBox);
     }
+
 
     private GridPane displayPixelGrid(Stage stage) {
         GridPane grid = new GridPane();
@@ -134,6 +145,10 @@ public class MapPane extends HBox {
             int row = pixel.getRow();
             pixelCell.setFill(pixelData[row][col]);
             grid.add(pixelCell, col, row);
+
+            pixelCell.setOnMouseClicked(e -> {
+                System.out.printf("Clicked at {%d, %d} \n", row, col);
+            });
         }
 
 //        for (int y = 0; y < map_height; y++) {
