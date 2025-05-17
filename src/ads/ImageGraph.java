@@ -23,7 +23,7 @@ public class ImageGraph {
         vertexGrid = new PixelVertex[imageHeight][imageWidth];
     }
 
-    private void addVertex(int r, int c, int pixelValue, boolean isWalkable) {
+    public void addVertex(int r, int c, int pixelValue, boolean isWalkable) {
 
         if (r < 0 || r >= imageHeight || c < 0 || c >= imageWidth) {
             System.err.println("Tried adding a vertex in an invalid location");
